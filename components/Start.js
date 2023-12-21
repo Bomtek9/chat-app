@@ -3,75 +3,204 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
   TextInput,
   ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 
 const imgBackground = require("../assets/back_ground.png");
 
 const Start = ({ navigation }) => {
   const [name, setName] = useState("");
+  const [background, setBackground] = useState(""); // Added background state
+
+  const signInUser = () => {
+    // Navigation logic here
+    navigation.navigate("Chat", { name, background });
+  };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={imgBackground} style={styles.image}>
-        {/* app title: */}
-        <Text style={styles.title}>Chat App</Text>
+    <ImageBackground source={imgBackground} style={styles.image}>
+      <Text style={styles.title}>Chat App</Text>
 
-        <View style={styles.inputBox}></View>
+      <View style={styles.container}>
+        {/* White container */}
+        <View style={styles.whiteContainer}>
+          {/* Username input */}
+          <View style={styles.inputBox}>
+            <TextInput
+              style={styles.textInput}
+              value={name}
+              onChangeText={setName}
+              placeholder="Your Name"
+            />
+          </View>
 
-        <TextInput
-          style={styles.textInput}
-          value={name}
-          onChangeText={setName}
-          placeholder="Type your username here"
-        />
-        <Button
-          title="Go to Chat"
-          onPress={() => navigation.navigate("Chat", { name: name })}
-        />
-      </ImageBackground>
-    </View>
+          <View>
+            <Text style={styles.chooseBgText}>Choose Background Color</Text>
+
+            {/* Container for colors */}
+            <View style={styles.colorButtonBox}>
+              {/* Color 1 */}
+              <TouchableOpacity
+                style={[
+                  styles.colorButton,
+                  styles.colorInput1,
+                  background === "#090C08" && styles.selectedColor,
+                ]}
+                onPress={() => {
+                  setBackground("#090C08");
+                }}
+              >
+                {background === "#090C08" && <View style={styles.ring}></View>}
+              </TouchableOpacity>
+
+              {/* Color 2 */}
+              <TouchableOpacity
+                style={[
+                  styles.colorButton,
+                  styles.colorInput2,
+                  background === "#474056" && styles.selectedColor,
+                ]}
+                onPress={() => {
+                  setBackground("#474056");
+                }}
+              >
+                {background === "#474056" && <View style={styles.ring}></View>}
+              </TouchableOpacity>
+
+              {/* Color 3 */}
+              <TouchableOpacity
+                style={[
+                  styles.colorButton,
+                  styles.colorInput3,
+                  background === "#8A95A5" && styles.selectedColor,
+                ]}
+                onPress={() => {
+                  setBackground("#8A95A5");
+                }}
+              >
+                {background === "#8A95A5" && <View style={styles.ring}></View>}
+              </TouchableOpacity>
+
+              {/* Color 4 */}
+              <TouchableOpacity
+                style={[
+                  styles.colorButton,
+                  styles.colorInput4,
+                  background === "#B9C6AE" && styles.selectedColor,
+                ]}
+                onPress={() => {
+                  setBackground("#B9C6AE");
+                }}
+              >
+                {background === "#B9C6AE" && <View style={styles.ring}></View>}
+              </TouchableOpacity>
+            </View>
+
+            {/* Button to start chatting */}
+            <TouchableOpacity style={styles.button} onPress={signInUser}>
+              <Text style={styles.buttonText}>Start Chatting</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
     flex: 1,
-    justifyContent: "center",
-    resizeMode: "cover",
-    alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
+    padding: "6%",
   },
   title: {
     fontSize: 45,
     fontWeight: "600",
-    color: "white",
+    color: "#FFFFFF",
     alignSelf: "center",
-    marginBottom: 250,
+  },
+  whiteContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: "6%",
+    paddingBottom: 20,
+    marginBottom: 0,
   },
   inputBox: {
-    // flex: 1,
-    height: "44%",
-    width: "88%",
     backgroundColor: "white",
     alignItems: "center",
-    marginBottom: 30,
-    // textAlign: "center",
     justifyContent: "space-evenly",
+    borderWidth: 1,
+    borderColor: "#757083", // Added border color
+    borderRadius: 10,
+    marginBottom: 20,
   },
   textInput: {
-    height: "15%",
-    width: "88%",
-    backgroundColor: "white",
-    alignItems: "center",
-    marginBottom: 30,
-    // textAlign: "center",
+    width: "100%", // Adjusted width
+    padding: 15,
+    fontSize: 16,
+    fontWeight: "300",
+    color: "#757083",
+    opacity: 0.5,
+  },
+  chooseBgText: {
+    fontSize: 16,
+    fontWeight: "300",
+    color: "#757083",
+    margin: 10,
+    textAlign: "left",
+    alignSelf: "flex-start",
+    marginLeft: 20,
+  },
+  colorButtonBox: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
     justifyContent: "space-evenly",
+    marginTop: 10,
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  colorInput1: {
+    backgroundColor: "#090C08",
+  },
+  colorInput2: {
+    backgroundColor: "#474056",
+  },
+  colorInput3: {
+    backgroundColor: "#8A95A5",
+  },
+  colorInput4: {
+    backgroundColor: "#B9C6AE",
+  },
+  ring: {
+    position: "absolute",
+    width: 48, // Adjust the size of the ring as needed
+    height: 48, // Adjust the size of the ring as needed
+    borderRadius: 24, // Make it a circle
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  button: {
+    backgroundColor: "#757083",
+    width: "100%",
+    alignItems: "center",
+    padding: 20,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
