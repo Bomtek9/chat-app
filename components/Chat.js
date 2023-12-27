@@ -1,25 +1,21 @@
-import { useEffect } from "react";
-import { GiftedChat } from "react-native-gifted-chat";
-import {
-  StyleSheet,
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { useState, useEffect } from "react";
+import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
+import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
-const Chat = () => {
+const Chat = ({ route, navigation }) => {
   const [messages, setMessages] = useState([]);
+  const { name } = route.params;
 
   useEffect(() => {
+    navigation.setOptions({ title: name });
     setMessages([
       {
         _id: 1,
-        text: "Hello Developer",
+        text: "Hello developer",
         createdAt: new Date(),
         user: {
-          ide: 2,
-          name: "React-Native",
+          _id: 2,
+          name: "React Native",
           avatar: "https://placeimg.com/140/140/any",
         },
       },
@@ -32,21 +28,39 @@ const Chat = () => {
     ]);
   }, []);
 
+  const onSend = (newMessages) => {
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, newMessages)
+    );
+  };
+
+  const renderBubble = (props) => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: "#000",
+          },
+          left: {
+            backgroundColor: "#FFF",
+          },
+        }}
+      />
+    );
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: background }]}>
+    <View style={styles.container}>
       <GiftedChat
-        renderInputToolbar={renderInputToolBar}
         messages={messages}
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: userID,
-          name: name,
+          _id: 1,
+          name,
         }}
-        renderActions={renderCustomActions}
-        renderCustomView={renderCustomView}
       />
-      {/* so that the keyboard does not overlap the input  */}
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
       ) : null}
@@ -57,8 +71,6 @@ const Chat = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 
