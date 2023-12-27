@@ -1,3 +1,4 @@
+// Importing necessary components and libraries from React and React Native
 import { useState } from "react";
 import {
   StyleSheet,
@@ -6,25 +7,31 @@ import {
   TextInput,
   ImageBackground,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from "react-native";
 
+// Importing the background image for the Start screen
 const imgBackground = require("../assets/back_ground.png");
 
+// Functional component for the Start screen
 const Start = ({ navigation }) => {
+  // State to manage user's name and selected background color
   const [name, setName] = useState("");
-  const [background, setBackground] = useState(""); // Added background state
+  const [background, setBackground] = useState("");
 
+  // Function to navigate to the Chat screen with user's name and background color
   const signInUser = () => {
-    // Navigation logic here
     navigation.navigate("Chat", { name, background });
   };
 
+  // Render the main component
   return (
     <ImageBackground source={imgBackground} style={styles.image}>
+      {/* Title for the app */}
       <Text style={styles.title}>Chat App</Text>
 
       <View style={styles.container}>
-        {/* White container */}
+        {/* White container for user input */}
         <View style={styles.whiteContainer}>
           {/* Username input */}
           <View style={styles.inputBox}>
@@ -36,10 +43,11 @@ const Start = ({ navigation }) => {
             />
           </View>
 
+          {/* Choose Background Color text */}
           <View>
             <Text style={styles.chooseBgText}>Choose Background Color</Text>
 
-            {/* Container for colors */}
+            {/* Container for color buttons */}
             <View style={styles.colorButtonBox}>
               {/* Color 1 */}
               <TouchableOpacity
@@ -105,10 +113,15 @@ const Start = ({ navigation }) => {
           </View>
         </View>
       </View>
+      {/* Adjust keyboard behavior for iOS */}
+      {Platform.OS === "ios" ? (
+        <KeyboardAvoidingView behavior="padding" />
+      ) : null}
     </ImageBackground>
   );
 };
 
+// Styles for the Start component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -204,4 +217,5 @@ const styles = StyleSheet.create({
   },
 });
 
+// Exporting the Start component as the default export
 export default Start;
