@@ -1,11 +1,16 @@
+// Importing necessary components and libraries from React and React Native
 import { useState, useEffect } from "react";
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
+// Functional component for the Chat screen
 const Chat = ({ route, navigation }) => {
+  // State to manage chat messages
   const [messages, setMessages] = useState([]);
+  // Extracting the 'name' parameter from the route
   const { name } = route.params;
 
+  // useEffect to set initial messages and update navigation title
   useEffect(() => {
     navigation.setOptions({ title: name });
     setMessages([
@@ -28,12 +33,14 @@ const Chat = ({ route, navigation }) => {
     ]);
   }, []);
 
+  // Function to handle sending new messages
   const onSend = (newMessages) => {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, newMessages)
     );
   };
 
+  // Custom rendering for chat bubbles
   const renderBubble = (props) => {
     return (
       <Bubble
@@ -50,8 +57,10 @@ const Chat = ({ route, navigation }) => {
     );
   };
 
+  // Render the main component
   return (
     <View style={styles.container}>
+      {/* GiftedChat component to render the chat interface */}
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
@@ -61,6 +70,7 @@ const Chat = ({ route, navigation }) => {
           name,
         }}
       />
+      {/* Adjust keyboard behavior for Android */}
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
       ) : null}
@@ -68,10 +78,12 @@ const Chat = ({ route, navigation }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
 });
 
+// Exporting the Chat component as the default export
 export default Chat;
