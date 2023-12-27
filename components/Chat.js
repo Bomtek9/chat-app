@@ -23,6 +23,12 @@ const Chat = () => {
           avatar: "https://placeimg.com/140/140/any",
         },
       },
+      {
+        _id: 2,
+        text: "This is a system message",
+        createdAt: new Date(),
+        system: true,
+      },
     ]);
   }, []);
 
