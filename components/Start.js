@@ -19,9 +19,19 @@ const Start = ({ navigation }) => {
   const [name, setName] = useState("");
   const [background, setBackground] = useState("");
 
-  // Function to navigate to the Chat screen with user's name and background color
   const signInUser = () => {
-    navigation.navigate("Chat", { name, background });
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("ChatScreen", {
+          userID: result.user.uid,
+          name: name,
+          backgroundColor: backgroundColor,
+        });
+        Alert.alert("Signed in Successfully");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, please try again later");
+      });
   };
 
   // Render the main component
