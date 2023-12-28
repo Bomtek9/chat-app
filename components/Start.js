@@ -1,221 +1,190 @@
-// Importing necessary components and libraries from React and React Native
-import { useState } from "react";
 import {
-  StyleSheet,
   View,
-  Text,
   TextInput,
-  ImageBackground,
   TouchableOpacity,
+  Text,
+  StyleSheet,
+  ImageBackground,
   KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from "react-native";
 
-// Importing the background image for the Start screen
-const imgBackground = require("../assets/back_ground.png");
+import { useState } from "react";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
-// Functional component for the Start screen
 const Start = ({ navigation }) => {
-  // State to manage user's name and selected background color
-  const [name, setName] = useState("");
-  const [background, setBackground] = useState("");
-
-  // Function to navigate to the Chat screen with user's name and background color
+  const auth = getAuth();
   const signInUser = () => {
-    navigation.navigate("Chat", { name, background });
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          user: user,
+          background: background,
+        });
+        Alert.alert("Signed In Successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try again later.");
+      });
   };
 
-  // Render the main component
+  const [user, setUser] = useState("");
+  const [background, setBackground] = useState("");
+  const image = require("../assets/back_ground.png");
+
+  // Update the background color when a button is pressed
+  const handleBackgroundChange = (color) => {
+    setBackground(color);
+  };
+
   return (
-    <ImageBackground source={imgBackground} style={styles.image}>
-      {/* Title for the app */}
-      <Text style={styles.title}>Chat App</Text>
+    <View style={styles.container}>
+      <ImageBackground source={image} style={styles.image}>
+        <Text style={styles.heading}>Chat App</Text>
+        <View style={styles.formInput}>
+          <TextInput
+            style={styles.textInput}
+            value={user}
+            placeholder="Your Username"
+            onChangeText={setUser}
+          />
 
-      <View style={styles.container}>
-        {/* White container for user input */}
-        <View style={styles.whiteContainer}>
-          {/* Username input */}
-          <View style={styles.inputBox}>
-            <TextInput
-              style={styles.textInput}
-              value={name}
-              onChangeText={setName}
-              placeholder="Your Name"
-            />
-          </View>
-
-          {/* Choose Background Color text */}
-          <View>
-            <Text style={styles.chooseBgText}>Choose Background Color</Text>
-
-            {/* Container for color buttons */}
-            <View style={styles.colorButtonBox}>
-              {/* Color 1 */}
+          <View style={styles.backgroundColorButtonWrapper}>
+            <Text style={styles.chooseBackgroundColor}>
+              Choose Background Color
+            </Text>
+            <View style={styles.backgroundColorButtonsOnly}>
               <TouchableOpacity
-                style={[
-                  styles.colorButton,
-                  styles.colorInput1,
-                  background === "#090C08" && styles.selectedColor,
-                ]}
-                onPress={() => {
-                  setBackground("#090C08");
-                }}
-              >
-                {background === "#090C08" && <View style={styles.ring}></View>}
-              </TouchableOpacity>
-
-              {/* Color 2 */}
+                style={styles.backgroundColorButton1}
+                onPress={() => handleBackgroundChange("#090C08")}
+              ></TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.colorButton,
-                  styles.colorInput2,
-                  background === "#474056" && styles.selectedColor,
-                ]}
-                onPress={() => {
-                  setBackground("#474056");
-                }}
-              >
-                {background === "#474056" && <View style={styles.ring}></View>}
-              </TouchableOpacity>
-
-              {/* Color 3 */}
+                style={styles.backgroundColorButton2}
+                onPress={() => handleBackgroundChange("#474056")}
+              ></TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.colorButton,
-                  styles.colorInput3,
-                  background === "#8A95A5" && styles.selectedColor,
-                ]}
-                onPress={() => {
-                  setBackground("#8A95A5");
-                }}
-              >
-                {background === "#8A95A5" && <View style={styles.ring}></View>}
-              </TouchableOpacity>
-
-              {/* Color 4 */}
+                style={styles.backgroundColorButton3}
+                onPress={() => handleBackgroundChange("#8A95A5")}
+              ></TouchableOpacity>
               <TouchableOpacity
-                style={[
-                  styles.colorButton,
-                  styles.colorInput4,
-                  background === "#B9C6AE" && styles.selectedColor,
-                ]}
-                onPress={() => {
-                  setBackground("#B9C6AE");
-                }}
-              >
-                {background === "#B9C6AE" && <View style={styles.ring}></View>}
-              </TouchableOpacity>
+                style={styles.backgroundColorButton4}
+                onPress={() => handleBackgroundChange("#B9C6AE")}
+              ></TouchableOpacity>
             </View>
-
-            {/* Button to start chatting */}
-            <TouchableOpacity style={styles.button} onPress={signInUser}>
-              <Text style={styles.buttonText}>Start Chatting</Text>
-            </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.enterButton} onPress={signInUser}>
+            <Text style={styles.buttonText}>Enter chat</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-      {/* Adjust keyboard behavior for iOS */}
+      </ImageBackground>
       {Platform.OS === "ios" ? (
         <KeyboardAvoidingView behavior="padding" />
       ) : null}
-    </ImageBackground>
+    </View>
   );
 };
 
-// Styles for the Start component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#fff",
+    justifyContent: "space-between",
   },
   image: {
     flex: 1,
-    justifyContent: "space-between",
-    padding: "6%",
+    resizeMode: "cover",
+    justifyContent: "center",
   },
-  title: {
+  heading: {
+    flex: 2,
     fontSize: 45,
+    color: "white",
     fontWeight: "600",
-    color: "#FFFFFF",
-    alignSelf: "center",
+    paddingTop: 60,
+    textAlign: "center",
   },
-  whiteContainer: {
-    backgroundColor: "#FFFFFF",
-    padding: "6%",
-    paddingBottom: 20,
-    marginBottom: 0,
-  },
-  inputBox: {
+  formInput: {
+    alignItems: "stretch",
     backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    borderWidth: 1,
-    borderColor: "#757083", // Added border color
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  textInput: {
-    width: "100%", // Adjusted width
+    margin: 15,
     padding: 15,
+    minHeight: "44%",
+  },
+
+  textInput: {
+    borderColor: "grey",
+    borderWidth: 2,
+    borderRadius: 5,
+    padding: 10,
     fontSize: 16,
     fontWeight: "300",
     color: "#757083",
     opacity: 0.5,
+    textAlign: "center",
   },
-  chooseBgText: {
+  chooseBackgroundColor: {
     fontSize: 16,
+    paddingTop: 30,
+    paddingBottom: 10,
     fontWeight: "300",
     color: "#757083",
-    margin: 10,
-    textAlign: "left",
-    alignSelf: "flex-start",
-    marginLeft: 20,
   },
-  colorButtonBox: {
-    display: "flex",
+
+  backgroundColorButtonsOnly: {
     flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-evenly",
-    marginTop: 10,
+    justifyContent: "space-evenly", // Center the buttons horizontally
+    paddingVertical: 20,
+    marginTop: 0,
   },
-  colorButton: {
+
+  backgroundColorButton1: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-  },
-  colorInput1: {
     backgroundColor: "#090C08",
+    borderRadius: 20,
+    marginRight: 10,
   },
-  colorInput2: {
+
+  backgroundColorButton2: {
+    width: 40,
+    height: 40,
     backgroundColor: "#474056",
+    borderRadius: 20,
+    marginRight: 10,
   },
-  colorInput3: {
+
+  backgroundColorButton3: {
+    width: 40,
+    height: 40,
     backgroundColor: "#8A95A5",
+    borderRadius: 20,
+    marginRight: 10,
   },
-  colorInput4: {
+
+  backgroundColorButton4: {
+    width: 40,
+    height: 40,
     backgroundColor: "#B9C6AE",
+    borderRadius: 20,
+    marginRight: 10,
   },
-  ring: {
-    position: "absolute",
-    width: 48, // Adjust the size of the ring as needed
-    height: 48, // Adjust the size of the ring as needed
-    borderRadius: 24, // Make it a circle
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-  },
-  button: {
+
+  enterButton: {
+    borderColor: "#000",
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 12,
     backgroundColor: "#757083",
-    width: "100%",
-    alignItems: "center",
-    padding: 20,
-    marginTop: 20,
   },
+
   buttonText: {
     color: "white",
     fontSize: 16,
+    textAlign: "center",
     fontWeight: "600",
   },
 });
 
-// Exporting the Start component as the default export
 export default Start;
