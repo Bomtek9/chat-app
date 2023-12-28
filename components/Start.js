@@ -133,12 +133,10 @@ const styles = StyleSheet.create({
   },
 
   backgroundColorButtonsOnly: {
-    display: "flex",
     flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-evenly",
-    marginTop: 10,
-    paddingBottom: 10,
+    justifyContent: "space-evenly", // Center the buttons horizontally
+    paddingVertical: 20,
+    marginTop: 0,
   },
 
   backgroundColorButton1: {
