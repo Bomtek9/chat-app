@@ -1,77 +1,24 @@
 import { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Platform,
-  KeyboardAvoidingView,
-} from "react-native";
-import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
+import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
+import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import {
   collection,
   addDoc,
   onSnapshot,
-  query,
   orderBy,
+  query,
 } from "firebase/firestore";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import CustomActions from "./CustomActions";
-import MapView from "react-native-maps";
 
-const ChatScreen = ({ db, route, isConnected, storage }) => {
-  const { name } = route.params;
-  const { userID } = route.params;
-  const { backgroundColor } = route.params;
+const Chat = ({ navigation, route, db }) => {
+  const { user, background, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
-  const loadCachedMessages = async () => {
-    const cachedMessages =
-      (await AsyncStorage.getItem("cached_messages")) || "[]";
-    setMessages(JSON.parse(cachedMessages));
-  };
-
-  const cacheMessages = async (messagesToCache) => {
-    try {
-      await AsyncStorage.setItem(
-        "cached_messages",
-        JSON.stringify(messagesToCache)
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  let unsubMessages;
-
-  useEffect(() => {
-    if (isConnected === true) {
-      if (unsubMessages) unsubMessages();
-      unsubMessages = null;
-
-      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-      unsubMessages = onSnapshot(q, (documentsSnapshot) => {
-        let newMessages = [];
-        documentsSnapshot.forEach((doc) => {
-          newMessages.push({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: new Date(doc.data().createdAt.toMillis()),
-          });
-        });
-        cacheMessages(newMessages);
-        setMessages(newMessages);
-      });
-    } else loadCachedMessages();
-
-    return () => {
-      if (unsubMessages) unsubMessages();
-    };
-  }, [isConnected]);
-
+  // append the new messages to the old ones
   const onSend = (newMessages) => {
     addDoc(collection(db, "messages"), newMessages[0]);
   };
 
+  // define the individual style of the bubble
   const renderBubble = (props) => {
     return (
       <Bubble
@@ -88,64 +35,36 @@ const ChatScreen = ({ db, route, isConnected, storage }) => {
     );
   };
 
-  const renderInputToolbar = (props) => {
-    return isConnected ? <InputToolbar {...props} /> : null;
-  };
+  useEffect(() => {
+    navigation.setOptions({ title: user });
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubMessages = onSnapshot(q, (docs) => {
+      let newMessages = [];
+      docs.forEach((doc) => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis()),
+        });
+      });
+      setMessages(newMessages);
+    });
 
-  const renderCustomActions = (props) => {
-    return <CustomActions userID={userID} storage={storage} {...props} />;
-  };
-
-  const renderCustomView = (props) => {
-    const { currentMessage } = props;
-    if (currentMessage.location) {
-      return (
-        <MapView
-          style={{
-            width: 150,
-            height: 100,
-            borderRadius: 13,
-            margin: 3,
-          }}
-          region={{
-            latitude: currentMessage.location.latitude,
-            longitude: currentMessage.location.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        />
-      );
-    }
-    return null;
-  };
-
-  const sampleMessage = {
-    _id: 1,
-    text: "My message",
-    createdAt: new Date(Date.UTC(2016, 5, 11, 17, 20, 0)),
-    user: {
-      _id: 2,
-      name: "React Native",
-      avatar: "https://facebook.github.io/react-native/img/header_logo.png",
-    },
-    image: "https://facebook.github.io/react-native/img/header_logo.png",
-  };
+    return () => {
+      if (unsubMessages) unsubMessages();
+    };
+  }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor }}>
+    <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        renderActions={renderCustomActions}
-        renderCustomView={renderCustomView}
         onSend={(messages) => onSend(messages)}
         user={{
           _id: userID,
-          name: name,
+          username: user,
         }}
-        minComposerHeight={40}
-        maxComposerHeight={100}
       />
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
@@ -160,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen;
+export default Chat;
