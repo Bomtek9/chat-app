@@ -1,7 +1,12 @@
+// App.js
+import React, { useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
+import { disableNetwork, enableNetwork } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
+import { useNetInfo } from "@react-native-community/netinfo";
 import Start from "./components/Start.js";
 import Chat from "./components/Chat.js";
 import { LogBox } from "react-native";
@@ -38,12 +43,34 @@ const auth = initializeAuth(app, {
 const db = getFirestore(app);
 
 const App = () => {
+  const netInfo = useNetInfo();
+  const [isConnected, setIsConnected] = useState(true);
+
+  const handleConnectivityChange = (newState) => {
+    setIsConnected(newState.isConnected);
+    if (newState.isConnected) {
+      enableNetwork(db); // Enable Firestore when there's a connection
+    } else {
+      disableNetwork(db); // Disable Firestore when there's no connection
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(handleConnectivityChange);
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Start">
         <Stack.Screen name="Start" component={Start} />
         <Stack.Screen name="Chat">
-          {(props) => <Chat auth={auth} db={db} {...props} />}
+          {(props) => (
+            <Chat isConnected={isConnected} auth={auth} db={db} {...props} />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
