@@ -55,7 +55,19 @@ const CustomActions = ({
             latitude: location.coords.latitude,
           },
         });
-      } else Alert.alert("Error occurred while fetching location");
+        if (location) {
+          onSend({
+            location: {
+              longitude: location.coords.longitude,
+              latitude: location.coords.latitude,
+            },
+          });
+        } else {
+          Alert.alert(
+            "Error occurred while fetching location or location is undefined"
+          );
+        }
+      }
     } else Alert.alert("Permission has not been granted");
   };
 
@@ -66,6 +78,13 @@ const CustomActions = ({
       let result = await ImagePicker.launchImageLibraryAsync();
       if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
       else Alert.alert("Permissions have not been granted");
+    }
+    if (!result.cancelled) {
+      await uploadAndSendImage(result.uri);
+    } else {
+      Alert.alert(
+        "Permissions have not been granted or operation was canceled"
+      );
     }
   };
 
