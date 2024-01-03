@@ -1,26 +1,28 @@
-// App.js
-import React, { useEffect, useState } from "react";
-import { disableNetwork, enableNetwork } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { useNetInfo } from "@react-native-community/netinfo";
-import Start from "./components/Start.js";
-import Chat from "./components/Chat.js";
-import { LogBox } from "react-native";
-import { getStorage } from "firebase/storage";
-
+import { useEffect } from "react";
+import { Alert, LogBox } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  disableNetwork,
+  enableNetwork,
+} from "firebase/firestore";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { getStorage } from "firebase/storage";
 
-// Create the navigator
+//import the screens
+import Start from "./components/Start";
+import Chat from "./components/Chat";
+
+//create the navigator
 const Stack = createNativeStackNavigator();
 
-// Ignore error message in Welcome Screen
-LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
+LogBox.ignoreLogs(["@firebase/auth: Auth"]);
 
 const App = () => {
   const connectionStatus = useNetInfo();
-  // Your web app's Firebase configuration
+
   const firebaseConfig = {
     apiKey: "AIzaSyCZmWrPIFDNB1LdnAq198HzMGoli9zWuy8",
     authDomain: "chat-app-5ff52.firebaseapp.com",
@@ -31,16 +33,16 @@ const App = () => {
     measurementId: "G-CQ6NKVFDCJ",
   };
 
-  // Initialize Firebase
+  //Intialize Firebase
   const app = initializeApp(firebaseConfig);
-  // Initialize Cloud Firestore and get a reference to the service
+
+  //Initialize Cloud Firestore and Cloud Storage and get a reference to the services
   const db = getFirestore(app);
-  // Initialize Cloud Firestore Storage and get a reference to the service
   const storage = getStorage(app);
 
   useEffect(() => {
     if (connectionStatus.isConnected === false) {
-      Alert.alert("Connection lost!");
+      Alert.alert("Connection Lost!");
       disableNetwork(db);
     } else if (connectionStatus.isConnected === true) {
       enableNetwork(db);
@@ -49,18 +51,22 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Start">
-        <Stack.Screen name="Start" component={Start} />
-        <Stack.Screen name="Chat">
+      <Stack.Navigator
+        initialRouteName="Welcome" //this name should match one of the name's listed below in the <Stack.Screen /> component
+      >
+        <Stack.Screen name="Welcome" component={Start} />
+        <Stack.Screen
+          name="Chat"
+          // component={Chat}
+        >
           {(props) => (
             <Chat
+              isConnected={connectionStatus.isConnected}
               db={db}
               storage={storage}
-              isConnected={connectionStatus.isConnected}
               {...props}
             />
           )}
-          {/* Using {...props} ensures that not only the db prop but also other relevant navigation-related props are passed to the Chat component. <Stack.Screen name="Chat" component={Chat} wouldnt pass the db props */}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
